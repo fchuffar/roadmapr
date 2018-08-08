@@ -1,0 +1,15 @@
+Package: roadmapr
+Type: Package
+Title: Epigenome Roadmap data tools
+Description: A set of useful tools allowing to download and alanalyse and visualize Epigenome Roadmap data.
+Version: 0.0.0.9
+Date: 2018-08-07
+Authors@R: c(
+    person("Florent", "Chuffart", ,"florent.chuffart@gmail.com", c("aut", "cre", "cph"))
+    )
+Maintainer: Florent Chuffart <florent.chuffart@gmail.com>
+License: CeCILL
+LazyData: TRUE
+Imports:
+    gplots
+RoxygenNote: 5.0.1

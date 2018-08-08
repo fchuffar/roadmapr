@@ -39,13 +39,15 @@ plot_epigenome = function(
   cex=2.5
 ) {
 
-  
-
   sample_labels = unlist(sapply(roadmap_matrices_metadata[marks], "[[", "sample_labels"))
   nb_samples = length(sample_labels)
-
+  if ("betas" %in% names(matrices)) {
+    nb_betas = nrow(matrices[["betas"]][[1]])
+  } else {
+    nb_betas = 0
+  }
   nb_lines = length(list_of_feat) + 1
-  nb_columns = 1 + PLOT_TRSCR_TYPE + PLOT_NORM_EXPR + PLOT_SPERMATO_EXPR + nb_samples + PLOT_CPG + PLOT_METH * nrow(matrices["betas"][[1]])
+  nb_columns = 1 + PLOT_TRSCR_TYPE + PLOT_NORM_EXPR + PLOT_SPERMATO_EXPR + nb_samples + PLOT_CPG + PLOT_METH * nb_betas
 
   layout(matrix(1:(nb_columns * nb_lines), nb_lines, byrow=TRUE), respect=FALSE)
   # head line
@@ -82,7 +84,7 @@ plot_epigenome = function(
     # text(0, -0.5, "density", cex=cex)
   }
   if (PLOT_METH) {
-    sapply(rownames(matrices["betas"][[1]]), function(t) {
+    sapply(rownames(matrices[["betas"]][[1]]), function(t) {
       plot(0,0,col=0, xaxt="n", yaxt="n")
       text(0, 0.5, t, cex=cex)
       text(0, -0.5, "meth", cex=cex)
@@ -125,29 +127,29 @@ plot_epigenome = function(
     # expression in normal tissues
     if (PLOT_NORM_EXPR) {
       par(mar=c(.1,.1,.1,.1))
-      data = matrices["aht_expr"][idx,]
+      data = matrices[["aht_expr"]][idx,]
       nb_bin = ncol(data)
       colors=c("green",  "black", "red")
       cols = colorRampPalette(colors)(20)
-      breaks = quantile(matrices["aht_expr"],  seq(0,1,length.out=length(cols)+1), na.rm=TRUE)
+      breaks = quantile(matrices[["aht_expr"]],  seq(0,1,length.out=length(cols)+1), na.rm=TRUE)
       image(t(data[idx,]), col=cols, breaks=breaks, xaxt="n", yaxt="n")
     }
 
     # expression in normal tissues
     if (PLOT_SPERMATO_EXPR) {
       par(mar=c(.1,.1,.1,.1))
-      data = matrices["spemato_expr"][idx,]
+      data = matrices[["spemato_expr"]][idx,]
       nb_bin = ncol(data)
       colors=c("green",  "black", "red")
       cols = colorRampPalette(colors)(20)
-      breaks = quantile(matrices["spemato_expr"],  seq(0,1,length.out=length(cols)+1), na.rm=TRUE)
+      breaks = quantile(matrices[["spemato_expr"]],  seq(0,1,length.out=length(cols)+1), na.rm=TRUE)
       image(t(data[idx,]), col=cols, breaks=breaks, xaxt="n", yaxt="n")
     }
 
     for (mark in marks) {
       par(mar=c(.1,.1,.1,.1))
       # roadmap marks
-      data = matrices["roadmap_matrices"][[mark]][idx,-(1:6)]
+      data = matrices[["roadmap_matrices"]][[mark]][idx,-(1:6)]
       data = as.matrix(data)
       data = log2(data + 1)
       # plot(density(data))
@@ -169,22 +171,13 @@ plot_epigenome = function(
     if (PLOT_CPG) {
       par(mar=c(.1,.1,.1,.1))
       # TSS CpG enrichment
-      data = matrices["cpg_density_glo"][idx,-(1:6)]
+      data = matrices[["cpg_density"]][idx,-(1:6)]
       data = as.matrix(data)
-      # plot(density(data))
-    
-      nb_bin = ncol(data)
-      idx_b = ((1:nb_samples) -1 ) * nb_bin + 1
-      idx_e = idx_b + nb_bin - 1
-      bins = cbind(idx_b, idx_e)
-    
       colors=c("black", "red")
       cols = colorRampPalette(colors)(20)
-      all_tss_cpg = as.matrix(matrices["cpg_density_glo"][,-(1:6)])
+      all_tss_cpg = as.matrix(matrices[["cpg_density"]][,-(1:6)])
       breaks = quantile(all_tss_cpg,  seq(0,1,length.out=length(cols)+1), na.rm=TRUE)
-      for (i in 1:nrow(bins)) {
-        image(t(data[idx,bins[i,1]:bins[i,2]]), col=cols, breaks=breaks, xaxt="n", yaxt="n")
-      }
+      image(t(data[idx,]), col=cols, breaks=breaks, xaxt="n", yaxt="n")
     }
 
     if (PLOT_METH) {
@@ -193,8 +186,8 @@ plot_epigenome = function(
       colors=c("green", "black", "red")
       cols = colorRampPalette(colors)(20)
 
-      for (i in 1:length(matrices["betas"])) {
-        data = matrices["betas"][[i]]
+      for (i in 1:length(matrices[["betas"]])) {
+        data = matrices[["betas"]][[i]]
         breaks = quantile(data,  seq(0,1,length.out=length(cols)+1), na.rm=TRUE)
         image(t(data[idx,]), col=cols, breaks=breaks, xaxt="n", yaxt="n")
       }
